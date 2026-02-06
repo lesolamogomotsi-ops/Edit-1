@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>For Senathi | Private</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,700&family=Great+Vibes&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --midnight: #0a0a0c;
+        --gold: #c5a059;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body { 
+        background: var(--midnight); 
+        color: #e0e0e0; 
+        font-family: 'Helvetica Neue', sans-serif; 
+        overflow: hidden; /* We handle scroll inside the container */
+        height: 100vh;
+        width: 100vw;
+    }
+
+    /* --- VISUAL FX --- */
+    .film-grain {
+        position: fixed; inset: 0;
+        background: url('https://raw.githubusercontent.com/NathanGordon0624/film-grain-assets/main/grain.gif');
+        opacity: 0.05; pointer-events: none; z-index: 50;
+    }
+
+    /* --- INTRO SCREEN --- */
+    #intro-screen {
+        position: fixed; inset: 0; background: black; z-index: 100;
+        display: flex; justify-content: center; align-items: center;
+        transition: opacity 1.5s ease;
+    }
+
+    .start-btn {
+        background: none; border: 1px solid var(--gold); color: var(--gold);
+        padding: 15px 40px; font-family: 'Playfair Display', serif;
+        letter-spacing: 5px; cursor: pointer; text-transform: uppercase;
+        transition: all 0.3s;
+    }
+    
+    .start-btn:hover { background: var(--gold); color: black; }
+
+    /* --- MAGAZINE CONTAINER (Horizontal Scroll) --- */
+    #experience {
+        display: flex;
+        flex-direction: row;
+        width: 100vw;
+        height: 100vh;
+        overflow-x: scroll;
+        overflow-y: hidden;
+        scroll-snap-type: x mandatory; /* This creates the "page lock" feel */
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Hide scrollbar for cleanliness */
+    #experience::-webkit-scrollbar { display: none; }
+    #experience { -ms-overflow-style: none;  scrollbar-width: none; }
+
+    .page {
+        flex: 0 0 100vw; /* Force full width */
+        height: 100vh;
+        position: relative;
+        scroll-snap-align: start; /* Snap to start of page */
+        display: flex;
+        justify-content: center; align-items: center;
+        text-align: center; padding: 20px;
+        overflow: hidden;
+    }
+
+    .media-bg {
+        position: absolute; inset: 0; width: 100%; height: 100%;
+        object-fit: cover; z-index: -2; opacity: 0.4;
+        filter: contrast(110%) brightness(70%);
+        transition: transform 6s ease; /* Subtle zoom effect */
+    }
+    
+    .page.active .media-bg { transform: scale(1.05); }
+
+    .gradient-overlay {
+        position: absolute; inset: 0;
+        background: linear-gradient(to bottom, rgba(10,10,12,1) 0%, rgba(22,10,29,0.3) 50%, rgba(10,10,12,1) 100%);
+        z-index: -1;
+    }
+
+    .quote-box {
+        max-width: 800px; opacity: 0; transform: translateY(30px);
+        transition: 1.5s all ease-out;
+        padding: 20px;
+        z-index: 10;
+    }
+
+    /* Animation trigger */
+    .page.active .quote-box { opacity: 1; transform: translateY(0); }
+
+    .main-text { 
+        font-family: 'Playfair Display', serif; 
+        font-size: clamp(1.8rem, 5vw, 3rem); /* Responsive text size */
+        line-height: 1.3; margin-bottom: 15px; 
+    }
+    
+    .accent-text { 
+        font-family: 'Great Vibes', cursive; 
+        color: var(--gold); 
+        font-size: clamp(1.5rem, 4vw, 2rem); 
+    }
+
+    /* --- NAVIGATION HINTS --- */
+    .nav-arrows {
+        position: fixed; bottom: 30px; left: 0; right: 0;
+        display: flex; justify-content: center; gap: 40px;
+        z-index: 60; pointer-events: none; /* Let clicks pass through */
+    }
+    
+    .nav-arrow {
+        color: var(--gold); font-size: 2rem; opacity: 0.5;
+        animation: pulse 2s infinite; pointer-events: auto; cursor: pointer;
+        background: none; border: none;
+    }
+
+    @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.8; } }
+    
+    /* Hide arrows on mobile touch (optional, but cleaner) */
+    @media (hover: none) and (pointer: coarse) {
+        .nav-arrows { display: none; } /* Mobile users will just swipe */
+    }
+
+</style>
+</head>
+<body>
+
+<div class="film-grain"></div>
+
+<div id="intro-screen">
+    <button class="start-btn" onclick="begin()">ENTER THE VIBE</button>
+</div>
+
+<audio id="player" loop><source src="MJ.mp3.mp3" type="audio/mpeg"></audio>
+
+<div id="experience">
+    </div>
+
+<div class="nav-arrows">
+    <button class="nav-arrow" onclick="scrollPage(-1)">&#8592;</button>
+    <button class="nav-arrow" onclick="scrollPage(1)">&#8594;</button>
+</div>
+
+<script>
+// YOUR ORIGINAL MEDIA LIST
+const mediaFiles = [
+    "nr1.gif", "nr2.gif", "nr3.gif", "nr4.gif", "nr5.gif", "nr6.gif", 
+    "nr7.gif", "nr8.gif", "nr9.gif", "nr10.gif", "nr11.gif", "nr12.gif",
+    "1.jpeg", "2.jpeg", "3.jpeg", "4.jpeg", "5.jpg",
+    "Good Night Love GIF.gif",
+    "happy episode 2 GIF by On My Block.gif",
+    "happy episode 2 GIF by On My Block (1).gif",
+    "Miles Morales Marvel GIF by Sony Pictures Animation.gif",
+    "quvenzhané wallis annie GIF",
+    "Pantera rosa",
+    "selina kyle",
+    "kacey musgraves butterflies GIF",
+    "Butterfly Hipster GIF",
+    "yu yu hakusho 90s GIF"
+];
+
+const quotes = [
+    ["i saw you and smiled, you’ve got a spark", ""],
+    ["give me a quote that makes you grin", "like sunshine on a good morning"],
+    ["you’ve got this effortless cool", ""],
+    ["i like how your world looks from here", "bright and unexpected"],
+    ["'In a world of words, you’re a little magic.'", "- Disney Mood"],
+    ["ever notice how laughter finds us?", ""],
+    ["'you make ordinary moments feel cinematic.'", ""],
+    ["there’s something about your energy…", ""],
+    ["is it just me or did the vibe just shift?", ""],
+    ["'your soul hums its own tune.'", "- Smooth Vibes"],
+    ["late night thoughts, curious eyes, and you.", ""],
+    ["'i noticed how the little things catch your attention...'", ""],
+    ["you’re like a song that loops in my head.", ""],
+    ["honestly, you’re kind of unforgettable.", ""],
+    ["'doubt the stars are far away, but never doubt a smile.'", ""],
+    ["i like how your mind wanders.", ""],
+    ["you’re the kind of person who makes stories brighter.", ""],
+    ["aesthetic is one thing, your presence is another.", ""],
+    ["'i’d recognize that sparkle anywhere.'", ""],
+    ["it’s the way you move, effortless grace.", ""],
+    ["you’re my favorite 'what’s up?' text.", ""],
+    ["'let’s take the moon for a spin.'", "- Jodeci Vibes"],
+    ["nobody else has that vibe you do.", ""],
+    ["i appreciate that little quirk of yours.", ""],
+    ["'you are delightfully unforgettable.'", ""],
+    ["just wanted to see you smile today.", ""],
+    ["can we linger in this moment a bit?", ""],
+    ["you’re the kind of curiosity i didn’t see coming.", ""],
+    ["hey… there’s one more tiny surprise.", ""],
+    ["wanna be partners in mischief for today?", "no pressure, just vibes."]
+];
+
+const container = document.getElementById('experience');
+
+// Generate Pages
+quotes.forEach((q, i) => {
+    const page = document.createElement('div');
+    page.className = 'page';
+    // Add ID for observation
+    page.dataset.index = i;
+    
+    const img = document.createElement('img');
+    img.className = 'media-bg';
+    const fileName = mediaFiles[i % mediaFiles.length];
+    
+    // Kept your original logic for handling GIFs/JPEGs
+    img.src = encodeURI(fileName);
+    img.onerror = function() {
+        if (!this.src.includes('.gif')) {
+            this.src = encodeURI(fileName + '.gif');
+        } else {
+            this.src = '1.jpeg'; // Fallback
+        }
+    };
+
+    const grad = document.createElement('div');
+    grad.className = 'gradient-overlay';
+    
+    const box = document.createElement('div');
+    box.className = 'quote-box';
+    box.innerHTML = `
+        <h1 class="main-text">${q[0]}</h1>
+        <p class="accent-text">${q[1]}</p>
+    `;
+
+    // Removed the "Next/Prev" buttons from inside the page 
+    // because we are now using horizontal scroll/swipe.
+    
+    if (i === quotes.length - 1) {
+        // Only the last page gets a button
+        const finalBtn = document.createElement('button');
+        finalBtn.style.marginTop = "20px";
+        finalBtn.className = 'start-btn'; // Reusing intro button style
+        finalBtn.style.fontSize = "1rem";
+        finalBtn.textContent = 'Yes';
+        finalBtn.onclick = () => alert('✨ A little magic, just for you! ✨');
+        box.appendChild(finalBtn);
+    }
+
+    page.appendChild(img);
+    page.appendChild(grad);
+    page.appendChild(box);
+    container.appendChild(page);
+});
+
+// Scroll Function for Buttons (PC)
+function scrollPage(direction) {
+    const width = window.innerWidth;
+    container.scrollBy({ left: width * direction, behavior: 'smooth' });
+}
+
+function begin() {
+    const intro = document.getElementById('intro-screen');
+    intro.style.opacity = '0';
+    setTimeout(() => { intro.style.display = 'none'; }, 1500);
+
+    const player = document.getElementById('player');
+    player.play().catch(() => { console.warn('Audio blocked, continuing anyway'); });
+    
+    // Trigger animation for first page manually
+    const pages = document.querySelectorAll('.page');
+    if(pages[0]) pages[0].classList.add('active');
+}
+
+// Intersection Observer to handle animations on scroll
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('active');
+        } else {
+            entry.target.classList.remove('active');
+        }
+    });
+}, { threshold: 0.5 });
+
+document.querySelectorAll('.page').forEach(page => {
+    observer.observe(page);
+});
+
+// Arrow key support
+document.addEventListener('keydown', (e) => {
+    if(document.getElementById('intro-screen').style.display === 'none') {
+        if(e.key === 'ArrowRight') scrollPage(1);
+        if(e.key === 'ArrowLeft') scrollPage(-1);
+    }
+});
+</script>
+
+</body>
+</html>
